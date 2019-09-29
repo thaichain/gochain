@@ -29,34 +29,33 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gochain-io/gochain/v3/accounts"
-	"github.com/gochain-io/gochain/v3/accounts/keystore"
-	"github.com/gochain-io/gochain/v3/common"
-	"github.com/gochain-io/gochain/v3/common/fdlimit"
-	"github.com/gochain-io/gochain/v3/consensus"
-	"github.com/gochain-io/gochain/v3/consensus/clique"
-	"github.com/gochain-io/gochain/v3/core"
-	"github.com/gochain-io/gochain/v3/core/rawdb"
-	"github.com/gochain-io/gochain/v3/core/state"
-	"github.com/gochain-io/gochain/v3/core/vm"
-	"github.com/gochain-io/gochain/v3/crypto"
-	"github.com/gochain-io/gochain/v3/dashboard"
-	"github.com/gochain-io/gochain/v3/eth"
-	"github.com/gochain-io/gochain/v3/eth/downloader"
-	"github.com/gochain-io/gochain/v3/eth/gasprice"
-	"github.com/gochain-io/gochain/v3/ethdb"
-	"github.com/gochain-io/gochain/v3/les"
-	"github.com/gochain-io/gochain/v3/log"
-	"github.com/gochain-io/gochain/v3/metrics"
-	"github.com/gochain-io/gochain/v3/netstats"
-	"github.com/gochain-io/gochain/v3/node"
-	"github.com/gochain-io/gochain/v3/p2p"
-	"github.com/gochain-io/gochain/v3/p2p/discover"
-	"github.com/gochain-io/gochain/v3/p2p/nat"
-	"github.com/gochain-io/gochain/v3/p2p/netutil"
-	"github.com/gochain-io/gochain/v3/params"
-	whisper "github.com/gochain-io/gochain/v3/whisper/whisperv6"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/gochain/gochain/v3/accounts"
+	"github.com/gochain/gochain/v3/accounts/keystore"
+	"github.com/gochain/gochain/v3/common"
+	"github.com/gochain/gochain/v3/common/fdlimit"
+	"github.com/gochain/gochain/v3/consensus"
+	"github.com/gochain/gochain/v3/consensus/clique"
+	"github.com/gochain/gochain/v3/core"
+	"github.com/gochain/gochain/v3/core/rawdb"
+	"github.com/gochain/gochain/v3/core/state"
+	"github.com/gochain/gochain/v3/core/vm"
+	"github.com/gochain/gochain/v3/crypto"
+	"github.com/gochain/gochain/v3/eth"
+	"github.com/gochain/gochain/v3/eth/downloader"
+	"github.com/gochain/gochain/v3/eth/gasprice"
+	"github.com/gochain/gochain/v3/ethdb"
+	"github.com/gochain/gochain/v3/les"
+	"github.com/gochain/gochain/v3/log"
+	"github.com/gochain/gochain/v3/metrics"
+	"github.com/gochain/gochain/v3/netstats"
+	"github.com/gochain/gochain/v3/node"
+	"github.com/gochain/gochain/v3/p2p"
+	"github.com/gochain/gochain/v3/p2p/discover"
+	"github.com/gochain/gochain/v3/p2p/nat"
+	"github.com/gochain/gochain/v3/p2p/netutil"
+	"github.com/gochain/gochain/v3/params"
+	whisper "github.com/gochain/gochain/v3/whisper/whisperv6"
+	"github.com/urfave/cli"
 )
 
 var (
@@ -197,31 +196,6 @@ var (
 	LightKDFFlag = cli.BoolFlag{
 		Name:  "lightkdf",
 		Usage: "Reduce key-derivation RAM & CPU usage at some expense of KDF strength",
-	}
-	// Dashboard settings
-	DashboardEnabledFlag = cli.BoolFlag{
-		Name:  "dashboard",
-		Usage: "Enable the dashboard",
-	}
-	DashboardAddrFlag = cli.StringFlag{
-		Name:  "dashboard.addr",
-		Usage: "Dashboard listening interface",
-		Value: dashboard.DefaultConfig.Host,
-	}
-	DashboardPortFlag = cli.IntFlag{
-		Name:  "dashboard.host",
-		Usage: "Dashboard listening port",
-		Value: dashboard.DefaultConfig.Port,
-	}
-	DashboardRefreshFlag = cli.DurationFlag{
-		Name:  "dashboard.refresh",
-		Usage: "Dashboard metrics collection refresh rate",
-		Value: dashboard.DefaultConfig.Refresh,
-	}
-	DashboardAssetsFlag = cli.StringFlag{
-		Name:  "dashboard.assets",
-		Usage: "Developer flag to serve the dashboard from the local file system",
-		Value: dashboard.DefaultConfig.Assets,
 	}
 	// Transaction pool settings
 	TxPoolLocalsFlag = cli.StringFlag{
@@ -1250,26 +1224,19 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 		} else {
 			keys := make(map[common.Address]string)
 			for i := 0; i < 10; i++ {
-				seed, err := ks.NewAccount("")
+				acc, err := crypto.CreateKey()
 				if err != nil {
 					Fatalf("Failed to create account: %v", err)
 				}
-				alloc[seed.Address] = core.GenesisAccount{Balance: oneThousandGO}
-				json, err := ks.Export(seed, "", "")
-				if err != nil {
-					Fatalf("Failed to export account: %v", err)
-				}
-				key, err := keystore.DecryptKey(json, "")
-				if err != nil {
-					Fatalf("Failed to decrypt key: %v", err)
-				}
-				keys[seed.Address] = "0x" + common.Bytes2Hex(key.PrivateKey.D.Bytes())
+				addr := crypto.PubkeyToAddress(acc.PrivateKey().PublicKey)
+				alloc[addr] = core.GenesisAccount{Balance: oneThousandGO}
+				keys[addr] = acc.PrivateKeyHex()
 			}
 
 			var buf bytes.Buffer
 			fmt.Fprintln(&buf, "Pre-funded accounts:")
 			fmt.Fprintln(&buf)
-			fmt.Fprintln(&buf, "\t\tAddress\t\t\t\t\t\tKey")
+			fmt.Fprintln(&buf, "\tAddress\t\t\t\t\t\tKey")
 			for addr, key := range keys {
 				fmt.Fprintf(&buf, "\t%s %s\n", addr.Hex(), key)
 			}
@@ -1295,13 +1262,6 @@ func GenesisExists(ctx *cli.Context, stack *node.Node) bool {
 	return stored != common.Hash{}
 }
 
-// SetDashboardConfig applies dashboard related command line flags to the config.
-func SetDashboardConfig(ctx *cli.Context, cfg *dashboard.Config) {
-	cfg.Host = ctx.GlobalString(DashboardAddrFlag.Name)
-	cfg.Port = ctx.GlobalInt(DashboardPortFlag.Name)
-	cfg.Refresh = ctx.GlobalDuration(DashboardRefreshFlag.Name)
-}
-
 // RegisterEthService adds an GoChain client to the stack.
 func RegisterEthService(ctx context.Context, stack *node.Node, cfg *eth.Config) {
 	var err error
@@ -1322,13 +1282,6 @@ func RegisterEthService(ctx context.Context, stack *node.Node, cfg *eth.Config) 
 	if err != nil {
 		Fatalf("Failed to register the GoChain service: %v", err)
 	}
-}
-
-// RegisterDashboardService adds a dashboard to the stack.
-func RegisterDashboardService(stack *node.Node, cfg *dashboard.Config, commit string) {
-	stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
-		return dashboard.New(cfg, commit)
-	})
 }
 
 // RegisterShhService configures Whisper and adds it to the given node.
