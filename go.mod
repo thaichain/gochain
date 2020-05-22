@@ -14,14 +14,14 @@ require (
 	github.com/cespare/xxhash v1.0.0
 	github.com/davecgh/go-spew v1.1.0
 	github.com/docker/docker v1.13.1
-	github.com/edsrzf/mmap-go v0.0.0-20170320065105-0bce6a688712
+	github.com/edsrzf/mmap-go v1.0.0
 	github.com/fatih/color v1.6.0
 	github.com/fjl/memsize v0.0.0-20180929194037-2a09253e352a
 	github.com/gizak/termui v2.2.0+incompatible
 	github.com/go-ini/ini v1.36.0 // indirect
 	github.com/go-stack/stack v1.7.0
 	github.com/golang/protobuf v1.3.1
-	github.com/golang/snappy v0.0.0-20170215233205-553a64147049
+	github.com/golang/snappy v0.0.1
 	github.com/gopherjs/gopherjs v0.0.0-20181103185306-d547d1d9531e // indirect
 	github.com/hashicorp/golang-lru v0.5.1
 	github.com/huin/goupnp v0.0.0-20180415215157-1395d1447324
@@ -43,8 +43,6 @@ require (
 	github.com/naoina/toml v0.1.1
 	github.com/nsf/termbox-go v0.0.0-20180502020344-5a49b8216054 // indirect
 	github.com/olekukonko/tablewriter v0.0.0-20180418011723-d5dd8a50526a
-	github.com/onsi/ginkgo v1.7.0 // indirect
-	github.com/onsi/gomega v1.4.3 // indirect
 	github.com/pborman/uuid v0.0.0-20170612153648-e790cca94e6c
 	github.com/peterh/liner v0.0.0-20180310181206-6106ee4fe3e8
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -55,14 +53,14 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20181108003508-044398e4856c // indirect
 	github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72 // indirect
 	github.com/stretchr/testify v1.2.1
-	github.com/syndtr/goleveldb v0.0.0-20180502072349-ae970a0732be
+	github.com/syndtr/goleveldb v1.0.1-0.20190923125748-758128399b1d
 	github.com/urfave/cli v1.21.0
 	go.opencensus.io v0.22.0
 	golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5
 	golang.org/x/net v0.0.0-20190603091049-60506f45cf65
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45 // indirect
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
-	golang.org/x/sys v0.0.0-20190606122018-79a91cf218c4
+	golang.org/x/sys v0.0.0-20200106162015-b016eb3dc98e
 	google.golang.org/appengine v1.6.0 // indirect
 	google.golang.org/genproto v0.0.0-20190605220351-eb0b1bdb6ae6 // indirect
 	google.golang.org/grpc v1.21.1 // indirect
